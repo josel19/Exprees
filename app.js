@@ -13,19 +13,30 @@
 
 const express = require('express');
 const app = express();
-function logger (req,res,next){
-    console.log('Request funcional');
-    console.log(`Ruta Recibida: ${req.protocol}://${req.get('host')}${req.originalUrl}`);
-    next();
-}
-const port = 5000;
+const morgan = require('morgan');
 const user = {
     username: 'Juan',
     lastname: 'pedro'
 };
+const data = [{name: 'Juan'},{name: 'Pedro'},{name: 'Rodolfo'}]
+// function logger (req,res,next){
+//     console.log('Request funcional');
+//     console.log(`Ruta Recibida: ${req.protocol}://${req.get('host')}${req.originalUrl}`);
+//     next();
+// }
 
+//Settings
+app.set('port', 3000) //-> Similar a una variable
+//        ↑      ↑
+//      nombre  valor
+app.set('view engine', 'ejs');//<-Motor de plantillas
+
+
+
+//Middleweres
+app.use(morgan('dev'));
 app.use(express.json());
-app.use(logger);
+// app.use(logger);
 
 
 // app.all('/user', (req, res, next)=>{
@@ -33,6 +44,11 @@ app.use(logger);
 //     next();
 // })
 
+
+//Routes
+app.get('/', (req, res)=>{
+res.render('index.ejs',{personas: data})
+})
 
 app.get('/user', (req, res)=>{
     res.json(user);
@@ -52,9 +68,10 @@ app.delete('/user/:id', (req, res)=>{
     res.send(`Usuario ${req.params.id} eliminao`);
 })
 
+app.use(express.static('public'));
 
 
-
-app.listen(port, ()=>{
-    console.log(`Server on port ${port}`);
+app.listen(app.get('port'), ()=>{
+    console.log('Server on port', app.get('port'));
 })
+
